@@ -6,6 +6,8 @@ public class Message {
     private final int destination;
     private final int sender;
     private final String messageBody;
+    private long startTime;
+    private long endTime;
 
     public Message(int destination, int sender, String messageBody) {
         this.destination = destination;
@@ -25,13 +27,20 @@ public class Message {
         return messageBody;
     }
 
+    public void setStartTime(long startTime){
+        this.startTime = startTime;
+    }
 
-//    private final String message;
-//    private final boolean isToken;
-//
-//    public Message(String message, boolean isToken) {
-//        this.message= message;
-//        this.isToken = isToken;
-//    }
+    public void setEndTime(long endTime){
+        this.endTime = endTime;
+    }
+
+    public long getStartTime() {
+        return startTime;
+    }
+
+    public long getEndTime() {
+        return endTime;
+    }
 
 }

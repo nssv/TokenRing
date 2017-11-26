@@ -1,8 +1,10 @@
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static java.lang.Thread.sleep;
 
@@ -15,37 +17,31 @@ public class TokenRing {
     private List<Message>[] listMessages;
     public static int length;
 
-//    public TokenRing(RingConstructor ringConstructor){
-//        this.ringConstructor = ringConstructor;
-//    }
-
     public TokenRing(int length) {
         this.length= length;
     }
 
     public void createRing() {
-//        TokenRing tokenRing = this;
         for (int i = 0; i < length; i++) {
-
             Node node = new Node(i);
-            if ( i!= length-1) node.setNext(new Node(i + 1));
-            else node.setNext(new Node(0));
-//            new Node(i+1).start();}
             listNodes.add(node);
-
-            Queue<Message> listMessage = new ConcurrentLinkedDeque<>();
-            for (int j = 0; j < 1000; j++) {
+            ConcurrentLinkedQueue<Message> listMessage = new ConcurrentLinkedQueue<>();
+            for (int j = 0; j < 1000000; j++) {
                 int rnd = new Random().nextInt(length);
                  if(rnd != i) listMessage.add(new Message(rnd, i, "1"));
             }
             node.setMessagesToSend(listMessage);
+
         }
 
+        for (int i = 0; i < listNodes.size(); i++) {
+             if(i != listNodes.size()-1) listNodes.get(i).setNext(listNodes.get(i+1));
+             else listNodes.get(i).setNext(listNodes.get(0));
+        }
 
         System.out.println("Token ring is generated");
         setFirstToken( 1);
         System.out.println("size"+listNodes.size());
-//        return tokenRing;
     }
 
     public void start() {
@@ -55,11 +51,16 @@ public class TokenRing {
         }
     }
 
-    public void interrupt() {
+    public void interrupt() throws FileNotFoundException, UnsupportedEncodingException {
         for (Node node : listNodes) {
             node.close();
         }
         Node.isInterrupted = true;
+
+        for (int i = 0; i < listNodes.size(); i++) {
+            writeToCSV(listNodes.get(i).getReceivedMessage(), i);
+        }
+
     }
 
     private void setFirstToken( int n){
@@ -71,11 +72,24 @@ public class TokenRing {
     }
 
 
-//    public void sendMessage(Message message, int i) {
-//        synchronized (listNodes) {
-//            listMessages[i].add(message);
-//        }
-//    }
+    private static final String CSV_SEPARATOR = ";";
+    private static void writeToCSV(List<Message> productList, int i) throws FileNotFoundException, UnsupportedEncodingException {
+        try
+        {
+            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("products"+i+".csv" ), "UTF-8"));
+            for (Message product : productList)
+            {
+                StringBuffer oneLine = new StringBuffer();
+                oneLine.append((product.getEndTime() - product.getStartTime()));
+                oneLine.append(CSV_SEPARATOR);
+                oneLine.append((product.getEndTime() - product.getStartTime())/60);
 
+                bw.write(oneLine.toString());
+                bw.newLine();
+            }
+            bw.flush();
+            bw.close();
+        } catch (IOException e){}
+    }
 
 }
