@@ -1,12 +1,16 @@
 /**
  * Created by Stepan on 20.11.2017.
  */
+
+
+
 public class Token {
 
     private Message message;
     private boolean isToken;
 
-    private Token(boolean isToken, Message message) {
+
+    public Token(boolean isToken, Message message) {
         this.isToken = isToken;
         this.message = message;
     }
